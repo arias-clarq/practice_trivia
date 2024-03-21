@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
+import 'model/Trivia.dart';
+import 'service/TriviaService.dart';
+import 'package:html_unescape/html_unescape.dart';
 
 class StartTrivia extends StatefulWidget{
   @override
@@ -9,6 +12,51 @@ class StartTrivia extends StatefulWidget{
 }
 
 class _StartTriviaState extends State<StartTrivia> {
+  final _triviaService = TriviaService();
+  Trivia? _trivia;
+  String? question;
+
+  Future<void> getTrivia(int category) async{
+    try{
+      final data = await _triviaService.getTrivia(category);
+      setState(() {
+        _trivia = data;
+        question = HtmlUnescape().convert(_trivia!.question);
+        print('Question: ${_trivia?.question}');
+        print('Correct: ${_trivia?.correctAnswer}');
+        print('InCorrect: ${_trivia?.incorrectAnswer}');
+        print('Category: ${_trivia?.category}');
+      });
+    }catch(e){
+      print(e);
+    }
+
+  }
+
+  @override
+  void initState() {
+    getTrivia(31);
+    super.initState();
+  }
+
+  void _showAnswer(bool isCorrect){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            title: Text('Result'),
+            content: Text(
+              isCorrect ? 'your answer is correct' : 'your answers is incorrect'
+            ),
+            actions: <Widget>[
+              TextButton(onPressed: (){
+                getTrivia(31);
+                Navigator.of(context).pop();
+              }, child: Text('Retry'))
+            ],
+          );
+        });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +92,7 @@ class _StartTriviaState extends State<StartTrivia> {
               color: Color(0xFFD7E5CA),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Text('Question'),
+            child: Text(question ?? 'loading...'),
           ),
           SizedBox(
             height: 5,
@@ -60,7 +108,13 @@ class _StartTriviaState extends State<StartTrivia> {
                 color: Color(0xffF9F3CC),
               ),
 
-              child: Text('True', style: TextStyle(color: Colors.black54),),
+              child: ElevatedButton(
+                onPressed: (){
+                bool isCorrect = _trivia?.correctAnswer.toLowerCase() == 'true';
+                _showAnswer(isCorrect);
+                },
+                child: Text('True'),
+              ),
             ),
           SizedBox(
             height: 10,
@@ -76,7 +130,13 @@ class _StartTriviaState extends State<StartTrivia> {
               color: Color(0xffd2e0fb),
             ),
 
-            child: Text('False', style: TextStyle(color: Colors.black54),),
+            child: ElevatedButton(
+              onPressed: (){
+                bool isCorrect = _trivia?.correctAnswer.toLowerCase() == 'false';
+                _showAnswer(isCorrect);
+              },
+              child: Text('False'),
+            ),
           ),
 
         ],
