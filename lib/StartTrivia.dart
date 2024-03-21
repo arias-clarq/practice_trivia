@@ -15,6 +15,7 @@ class _StartTriviaState extends State<StartTrivia> {
   final _triviaService = TriviaService();
   Trivia? _trivia;
   String? question;
+  String? categoryTitle;
 
   Future<void> getTrivia(int category) async{
     try{
@@ -22,6 +23,7 @@ class _StartTriviaState extends State<StartTrivia> {
       setState(() {
         _trivia = data;
         question = HtmlUnescape().convert(_trivia!.question);
+        categoryTitle = HtmlUnescape().convert(_trivia!.category);
         print('Question: ${_trivia?.question}');
         print('Correct: ${_trivia?.correctAnswer}');
         print('InCorrect: ${_trivia?.incorrectAnswer}');
@@ -35,7 +37,7 @@ class _StartTriviaState extends State<StartTrivia> {
 
   @override
   void initState() {
-    getTrivia(31);
+    getTrivia(28);
     super.initState();
   }
 
@@ -50,7 +52,7 @@ class _StartTriviaState extends State<StartTrivia> {
             ),
             actions: <Widget>[
               TextButton(onPressed: (){
-                getTrivia(31);
+                getTrivia(28);
                 Navigator.of(context).pop();
               }, child: Text('Retry'))
             ],
@@ -64,7 +66,7 @@ class _StartTriviaState extends State<StartTrivia> {
       appBar: AppBar(
         backgroundColor: Color(0xff8eaccd),
         centerTitle: true,
-        title: Text('TriviaTime', style: TextStyle(color: Colors.white),),
+        title: Text(categoryTitle ?? 'TriviaTime', style: TextStyle(color: Colors.white),),
       ),
       body: Column(
           // mainAxisAlignment : MainAxisAlignment.center,
